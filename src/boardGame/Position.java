@@ -25,7 +25,11 @@ public class Position {
 	public void setColumns(int columns) {
 		this.columns = columns;
 	}
-
+	
+	public void setValues(int rows, int columns) {
+		this.rows = rows;
+		this.columns = columns;
+	}
 	@Override
 	public String toString() {
 		return rows + ", " + columns;
