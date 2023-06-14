@@ -19,7 +19,7 @@ public class King extends ChessPiece{
 		return p == null || p.getColor() != getColor();
 	}
 	@Override
-	public boolean[][] possibleMoves() {
+	public boolean[][] possibleMoves() {	
 		boolean[][] math = new boolean[getBoard().getRows()][getBoard().getColumns()];
 		Position p = new Position(0,0);
 		
