@@ -41,6 +41,23 @@ public class Horse extends ChessPiece{
 			math[p.getRows()][p.getColumns()] = true;
 		}
 		
+		p.setValues(position.getRows() - 1, position.getColumns() + 2);
+		if(getBoard().positionExists(p) && isThereOpponentPiece(p)) {
+			math[p.getRows()][p.getColumns()] = true;
+		}
+		p.setValues(position.getRows() - 1, position.getColumns() - 2);
+		if(getBoard().positionExists(p) && isThereOpponentPiece(p)) {
+			math[p.getRows()][p.getColumns()] = true;
+		}
+		p.setValues(position.getRows() + 1, position.getColumns() + 2);
+		if(getBoard().positionExists(p) && isThereOpponentPiece(p)) {
+			math[p.getRows()][p.getColumns()] = true;
+		}
+		p.setValues(position.getRows() + 1, position.getColumns() - 2);
+		if(getBoard().positionExists(p) && isThereOpponentPiece(p)) {
+			math[p.getRows()][p.getColumns()] = true;
+		}
+		
 		return math;
 	}
 
