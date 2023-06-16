@@ -20,6 +20,7 @@ public class ChessMatch {
 	private Board board;
 	private boolean check;
 	private boolean checkMate;
+	private ChessPiece promoted;
 	
 	private List<Piece> piecesOnTheBoard = new ArrayList<>();
 	private List<Piece> capturedPieces = new ArrayList<>();
@@ -39,6 +40,9 @@ public class ChessMatch {
 	}
 	public boolean getCheck() {
 		return check;
+	}
+	public ChessPiece getPromoted() {
+		return promoted;
 	}
 	public boolean getCheckMate() {
 		return checkMate;
@@ -81,6 +85,15 @@ public class ChessMatch {
 			returnMove(source, target, capturedPiece);
 			throw new ChessException("You are in the target of the check!");
 		}
+		ChessPiece movedPiece = (ChessPiece)board.piece(target);
+		
+		promoted = null;
+		if (movedPiece instanceof Pawn) {
+			if ((movedPiece.getColor() == Color.WHITE && target.getRows() == 0) || (movedPiece.getColor() == Color.BLACK && target.getRows() == 7)) {
+				promoted = (ChessPiece)board.piece(target);
+				promoted = replacePromotedPiece("Q");
+			}
+		}
 		check = (testCheck(opponent(currentPlayer))) ? true : false;
 		
 		if(testCheckMate(opponent(currentPlayer))) {
@@ -89,6 +102,32 @@ public class ChessMatch {
 			nextTurn();
 		}
 		return (ChessPiece)capturedPiece;
+	}
+	public ChessPiece replacePromotedPiece(String type) {
+		if (promoted == null) {
+			throw new IllegalStateException("There is no piece to be promoted");
+		}
+		if (!type.equals("B") && !type.equals("N") && !type.equals("R") & !type.equals("Q")) {			
+			return promoted;
+		}
+
+		Position pos = promoted.getChessPosition().toPosition();
+		Piece p = board.removePiece(pos);
+		piecesOnTheBoard.remove(p);
+
+		ChessPiece newPiece = newPiece(type, promoted.getColor());
+		board.placePiece(newPiece, pos);
+		piecesOnTheBoard.add(newPiece);
+
+		return newPiece;
+	}
+
+	private ChessPiece newPiece(String type, Color color) {
+		if (type.equals("B")) return new Bishop(board, color);
+		if (type.equals("H")) return new Horse(board, color);
+		if (type.equals("Q")) return new Queen(board, color);
+		
+		return new Rook(board, color);
 	}
 	
 	private Piece makeMove(Position position, Position target) {
@@ -101,6 +140,25 @@ public class ChessMatch {
 			piecesOnTheBoard.remove(captured);
 			capturedPieces.add(captured);
 		}
+		
+		if(p instanceof King && target.getColumns() == position.getColumns() + 2) {
+			Position sourceTower = new Position(position.getRows(), position.getColumns() + 3);
+			Position targetTower = new Position(position.getRows(), position.getColumns() + 1);
+			
+			ChessPiece rook = (ChessPiece)board.removePiece(sourceTower);
+			board.placePiece(rook, targetTower);
+			rook.increaseMoveCount();
+
+		}
+		if(p instanceof King && target.getColumns() == position.getColumns() - 2) {
+			Position sourceTower = new Position(position.getRows(), position.getColumns() - 4);
+			Position targetTower = new Position(position.getRows(), position.getColumns() - 1);
+			
+			ChessPiece rook = (ChessPiece)board.removePiece(sourceTower);
+			board.placePiece(rook, targetTower);
+			rook.increaseMoveCount();
+
+		}
 		return captured;
 	}
 	private void returnMove(Position source, Position target, Piece capturedPiece) {
@@ -112,6 +170,25 @@ public class ChessMatch {
 			board.placePiece(capturedPiece, target);
 			capturedPieces.remove(capturedPiece);
 			piecesOnTheBoard.add(capturedPiece);
+		}
+		
+		if(p instanceof King && target.getColumns() == source.getColumns() + 2) {
+			Position sourceTower = new Position(source.getRows(), source.getColumns() + 3);
+			Position targetTower = new Position(source.getRows(), source.getColumns() + 1);
+			
+			ChessPiece rook = (ChessPiece)board.removePiece(targetTower);
+			board.placePiece(rook, sourceTower);
+			rook.decreaseMoveCount();
+
+		}
+		if(p instanceof King && target.getColumns() == source.getColumns() - 2) {
+			Position sourceTower = new Position(source.getRows(), source.getColumns() - 4);
+			Position targetTower = new Position(source.getRows(), source.getColumns() - 1);
+			
+			ChessPiece rook = (ChessPiece)board.removePiece(targetTower);
+			board.placePiece(rook, sourceTower);
+			rook.decreaseMoveCount();
+
 		}
 	}
 	private void validateSourcePosition(Position position) {
